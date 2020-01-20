@@ -1,10 +1,26 @@
 import React, { Fragment, useState } from 'react';
-import { Editor, EditorState, RichUtils, DraftHandleValue } from 'draft-js';
+import {
+  Editor,
+  EditorState,
+  RichUtils,
+  DraftHandleValue,
+  ContentState,
+  convertToRaw
+} from 'draft-js';
 import styled from 'styled-components';
+import { stateToHTML } from 'draft-js-export-html';
 
 const App: React.FC = () => {
+  // ex) Set empty text
+  // const [state, setState] = useState({
+  //   editorState: EditorState.createEmpty()
+  // });
+
+  // ex) Set default text
   const [state, setState] = useState({
-    editorState: EditorState.createEmpty()
+    editorState: EditorState.createWithContent(
+      ContentState.createFromText('This is a sample of Draft.js.')
+    )
   });
 
   const changeHandler = (editorState: EditorState) => {
@@ -34,12 +50,24 @@ const App: React.FC = () => {
     setState({ editorState: newState });
   };
 
+  const saveHandler = () => {
+    // https://qiita.com/samayotta/items/309f28b9da5a99b6e38f
+    const contentState = state.editorState.getCurrentContent();
+    const content = convertToRaw(contentState);
+    console.log(content);
+    const html = stateToHTML(contentState);
+    console.log(html);
+  };
+
   return (
     <Fragment>
       <StyledBoldLabel>
         範囲選択してタップするとBoldになります。
         <button onClick={boldHandler}>Bold</button>
       </StyledBoldLabel>
+      <StyledDiv>
+        <button onClick={saveHandler}>Save</button>
+      </StyledDiv>
       <StyledDiv>Command + B → Bold　／ Command + I → Italic</StyledDiv>
       <StyledDiv>↓テキストを入力してください。</StyledDiv>
       <Editor
